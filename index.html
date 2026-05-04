@@ -154,12 +154,15 @@
                 <p>Drop your leaf image here or click to browse</p>
                 <p class="small">JPG, PNG — max 5MB</p>
             </div>
-            <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files[0])">
+<input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)">
             <div class="result-area" id="resultArea">
                 <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">Analysis Complete!</p>
                 <img id="resultImage" class="sample-image" src="" alt="Detected Diseases">
                 <div class="detected-labels" id="detectedLabels"></div>
             </div>
+            <button onclick="runInference()" class="predict-btn" style="margin-top: 20px; padding: 12px 24px; background: #2d6a4f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%;">
+    Predict Disease
+</button>
         </div>
     </section>
     <section id="team" class="fade-in">
@@ -184,6 +187,14 @@
         // ==========================================
         // PASTE YOUR API KEY BELOW (keep the quotes)
         // ==========================================
+        function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        const output = document.getElementById('resultImage');
+        output.src = reader.result;
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
 const API_KEY = "rf_qBGqgx7sTDQCxHRT1AZCEWWY4P02";
 const MODEL_ID = "tomato-leaf-disease-rxcft";
 const VERSION = 1;
