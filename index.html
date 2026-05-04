@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">    
 <head>
+    <script src="https://cdn.roboflow.com/0.2.26/roboflow.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriVision — AI Tomato Leaf Disease Detection</title>
@@ -183,14 +184,52 @@
         // ==========================================
         // PASTE YOUR API KEY BELOW (keep the quotes)
         // ==========================================
-        const API_KEY = 'rf_qBGqgx7sTDQCxHRTlAZCEwWY4PO2';
+const API_KEY = "rf_qBGqgx7sTDQCxHRT1AZCEWWY4P02";
+const MODEL_ID = "tomato-leaf-disease-rxcft";
+const VERSION = 1;
 
-        const WORKFLOW_URL = 'https://serverless.roboflow.com/infer/workflows/joshuas-workspace-fpkue/seSYz26yao7fW8YcQHvh';
+// This is the new engine that talks to Roboflow properly
+async function runInference() {
+    const imageElement = document.getElementById('resultImage');
+    const resultArea = document.getElementById('resultArea');
 
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    if (!imageElement.src || imageElement.src.includes('placeholder')) {
+        alert("Upload a leaf photo first!");
+        return;
+    }
+
+    resultArea.innerHTML = "<p>Analyzing leaf... 🌿</p>";
+
+    try {
+        const model = await roboflow.auth({ publishable_key: API_KEY }).load({
+            model: MODEL_ID,
+            version: VERSION
+        });
+
+        const predictions = await model.detect(imageElement);
+        
+        if (predictions.length > 0) {
+            const topMatch = predictions[0];
+            resultArea.innerHTML = `
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid #2d6a4f; color: #1a3c24;">
+                    <h3 style="margin: 0;">Match Found!</h3>
+                    <p style="font-size: 1.2rem; margin: 10px 0;"><strong>${topMatch.class}</strong></p>
+                    <p>Confidence: ${Math.round(topMatch.confidence * 100)}%</p>
+                </div>
+            `;
+        } else {
+            resultArea.innerHTML = "<p>No disease detected. This leaf looks healthy! ✅</p>";
         }
+    } catch (err) {
+        console.error("AI Error:", err);
+        resultArea.innerHTML = "<p style='color: red;'>Connection failed. Check console.</p>";
+    }
+}
 
+// Keep your scroll function below this
+function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
